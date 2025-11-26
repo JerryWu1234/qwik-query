@@ -1,4 +1,4 @@
-# Qwik Library ⚡️
+# qwik-query ⚡️
 
 - [Qwik Docs](https://qwik.dev/)
 - [Discord](https://qwik.dev/chat)
