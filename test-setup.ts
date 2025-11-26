@@ -4,46 +4,60 @@
 ;(globalThis as any).qRuntimeQrl = true
 ;(globalThis as any).qDev = true
 ;(globalThis as any).qInspector = false
+import { beforeAll } from 'vitest';
+
+// This has to run before qdev.ts loads. `beforeAll` is too late
+globalThis.qTest = true;
+globalThis.qRuntimeQrl = true;
+globalThis.qDev = true;
+globalThis.qInspector = false;
+
+beforeAll(async () => {
+  const { getTestPlatform } = await import('@qwik.dev/core/testing');
+  const { setPlatform } = await import('@qwik.dev/core/internal');
+  setPlatform(getTestPlatform() as any);
+});
 
 
-console.log('[test-setup] Global flags set')
-console.log('[test-setup] qRuntimeQrl:', (globalThis as any).qRuntimeQrl)
-console.log('[test-setup] __qwik_reg_symbols:', (globalThis as any).__qwik_reg_symbols)
 
-import { TextEncoder, TextDecoder } from 'node:util'
+// console.log('[test-setup] Global flags set')
+// console.log('[test-setup] qRuntimeQrl:', (globalThis as any).qRuntimeQrl)
+// console.log('[test-setup] __qwik_reg_symbols:', (globalThis as any).__qwik_reg_symbols)
 
-// Fix for esbuild's Uint8Array instanceof check in jsdom environment
-const NodeTextEncoder = TextEncoder
-const OriginalUint8Array = Uint8Array
+// import { TextEncoder, TextDecoder } from 'node:util'
 
-class PatchedTextEncoder extends NodeTextEncoder {
-  override encode(input?: string): Uint8Array {
-    const result = super.encode(input)
-    Object.setPrototypeOf(result, OriginalUint8Array.prototype)
-    return result
-  }
-}
+// // Fix for esbuild's Uint8Array instanceof check in jsdom environment
+// const NodeTextEncoder = TextEncoder
+// const OriginalUint8Array = Uint8Array
 
-// @ts-expect-error - Type mismatch due to different Uint8Array generics
-globalThis.TextEncoder = PatchedTextEncoder
-// @ts-expect-error - Type mismatch between node and browser TextDecoder
-globalThis.TextDecoder = TextDecoder
+// class PatchedTextEncoder extends NodeTextEncoder {
+//   override encode(input?: string): Uint8Array {
+//     const result = super.encode(input)
+//     Object.setPrototypeOf(result, OriginalUint8Array.prototype)
+//     return result
+//   }
+// }
 
-console.log('[test-setup] Importing Qwik testing...')
+// // @ts-expect-error - Type mismatch due to different Uint8Array generics
+// globalThis.TextEncoder = PatchedTextEncoder
+// // @ts-expect-error - Type mismatch between node and browser TextDecoder
+// globalThis.TextDecoder = TextDecoder
 
-// Import Qwik testing module to register vitest matchers
-// Export the promise so Vitest waits for it
-export default (async () => {
-  const { getTestPlatform } = await import('@qwik.dev/core/testing')
-  console.log('[test-setup] getTestPlatform loaded')
+// console.log('[test-setup] Importing Qwik testing...')
 
-  const core = (await import('@qwik.dev/core')) as any
-  console.log('[test-setup] @qwik.dev/core loaded, setting platform...')
+// // Import Qwik testing module to register vitest matchers
+// // Export the promise so Vitest waits for it
+// export default (async () => {
+//   const { getTestPlatform } = await import('@qwik.dev/core/testing')
+//   console.log('[test-setup] getTestPlatform loaded')
 
-  if (core.setPlatform) {
-    core.setPlatform(getTestPlatform())
-    console.log('[test-setup] Platform set successfully')
-  } else {
-    console.log('[test-setup] setPlatform not found in @qwik.dev/core')
-  }
-})()
+//   const core = (await import('@qwik.dev/core')) as any
+//   console.log('[test-setup] @qwik.dev/core loaded, setting platform...')
+
+//   if (core.setPlatform) {
+//     core.setPlatform(getTestPlatform())
+//     console.log('[test-setup] Platform set successfully')
+//   } else {
+//     console.log('[test-setup] setPlatform not found in @qwik.dev/core')
+//   }
+// })()

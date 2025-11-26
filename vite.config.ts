@@ -10,16 +10,7 @@ const excludeAll = (obj) => Object.keys(obj).map(makeRegex);
 
 export default defineConfig(() => {
   return {
-    resolve: {
-      conditions: ['@tanstack/custom-condition'],
-    },
-    environments: {
-      ssr: {
-        resolve: {
-          conditions: ['@tanstack/custom-condition'],
-        },
-      },
-    },
+
     build: {
       outDir: "lib",
       target: "es2020",
